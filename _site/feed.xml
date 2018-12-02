@@ -1,0 +1,595 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-11-14T00:47:18+01:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">My experiments with jekyll</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</subtitle><entry><title type="html">Finite-sample analysis of $M$-estimators using self-concordance, Part II</title><link href="http://localhost:4000/jekyll/update/2018/11/13/self-concordance-part-2.html" rel="alternate" type="text/html" title="Finite-sample analysis of $M$-estimators using self-concordance, Part II" /><published>2018-11-13T00:00:00+01:00</published><updated>2018-11-13T00:00:00+01:00</updated><id>http://localhost:4000/jekyll/update/2018/11/13/self-concordance-part-2</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2018/11/13/self-concordance-part-2.html">&lt;p&gt;This the second of two posts where I present &lt;a href=&quot;https://arxiv.org/abs/1810.06838&quot;&gt;&lt;strong&gt;our work&lt;/strong&gt;&lt;/a&gt; with Francis Bach on the optimal rates for $M$-estimators. 
+Recall that in the previous post, we have proved the Localization Lemma which states the following: stability of the empirical risk Hessian $\mathbf{H}_n(\theta)$ on the Dikin ellipsoid $\Theta_{r}(\theta_*)$ with radius $r$,
+\[
+\mathbf{H}_n(\theta) \asymp \mathbf{H}_n(\theta_*), \, \forall \theta \in \Theta_{r}(\theta_*),
+\] 
+guarantees that once the &lt;em&gt;score&lt;/em&gt; $\Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2$ reaches 
+\[ 
+\Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2 \lesssim r^2,
+\]
+one has the desired excess risk bound:
+\[
+L(\widehat \theta_n) - L(\theta_*) \lesssim \Vert\widehat \theta_n - \theta_*\Vert_{\mathbf{H}}^2 \lesssim \Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2
+\]
+In this post, we will show how self-concordance can be used to prove stability guarantees for $\mathbf{H}_n(\theta)$.&lt;/p&gt;
+
+&lt;h1 id=&quot;self-concordance&quot;&gt;&lt;strong&gt;Self-concordance&lt;/strong&gt;&lt;/h1&gt;
+
+&lt;p&gt;Recall that $\ell(y,\eta)$ is the loss of predicting a label $y \in \mathcal{Y}$ with $\eta = X^\top \theta \in \mathbb{R}$. We assume that $\ell(y,\eta)$ is convex in its second argument, and introduce
+the following definition:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;Definition 1&lt;/strong&gt;. The loss $\ell(y,\eta)$ is &lt;strong&gt;self-concordant (SC)&lt;/strong&gt; if for any $(y,\eta) \in \mathcal{Y} \times \mathbb{R}$ it holds
+\[
+\boxed{
+|\ell'''_\eta(y,\eta)| \le [\ell''_\eta(y,\eta)]^{3/2}.
+}
+\]&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;While the above definition is homogeneous in $\eta$, the next one is not, since the power $3/2$ is removed:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;Definition 2&lt;/strong&gt;. The loss $\ell(y,\eta)$ is &lt;strong&gt;pseudo self-concordant (PSC)&lt;/strong&gt; if instead it holds
+\[
+\boxed{
+|\ell'''_\eta(y,\eta)| \le \ell''_\eta(y,\eta).
+}
+\]&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The first definition is inspired by &lt;a href=&quot;https://epubs.siam.org/doi/book/10.1137/1.9781611970791?mobileUi=0&quot;&gt;[3]&lt;/a&gt; where similar functions (in $\mathbb{R}^d$) were introduced in the context of interior-point algorithms. 
+As we are about to see, the homogeneity of this definition in $\eta$ allows to qualify the precision of local quadratic approximations of empirical risk in affine-invariant manner, which is a natural requirement if we recall that $M$-estimators are &lt;em&gt;themselves&lt;/em&gt; affine-invariant.
+This is violated in the second definition; will see that this leads to the increased sample size to guarantee the optimal excess risk for PSC losses, under the extra assumption.
+On the other hand, PSC losses are somewhat more common.
+I will now give several examples of SC and PSC losses.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;One family of examples arises in generalized linear models (GLMs). In particular, &lt;strong&gt;&lt;em&gt;the logistic loss&lt;/em&gt;&lt;/strong&gt;
+\[
+\ell(y,\eta) = \frac{\log(1 + e^{-y\eta})}{\log 2},
+\]
+is PSC (see &lt;a href=&quot;https://projecteuclid.org/euclid.ejs/1271941980&quot;&gt;[4]&lt;/a&gt;).
+In fact, one can consider other GLM losses with canonical parameter, given by
+\[
+\ell(y,\eta) = - y\eta + a(\eta) - b(y),
+\]
+where the &lt;em&gt;cumulant&lt;/em&gt; $a(\eta)$ can be written as 
+\[
+a(\eta) = \mathbb{E}_{p_\eta}[Y]
+\] 
+where 
+$
+p_\eta(y) \propto e^{y\eta + b(y)}
+$
+is the density that the model imposes on $Y$. Thus, for GLMs self-concordance can be interpreted in terms of this model distribution of $Y$: for $s \in \{2,3\}$ we have
+\[
+\ell_\eta^{(s)}(y,\eta) = a^{(s)}(\eta) = \mathbb{E}_{p_\eta} [(Y - \mathbb{E}_{p_\eta}Y)^s].
+\]
+Then, (pseudo) self-concordance specifies the relation between the central moments of $p_\eta(\cdot)$.
+In particular, we see that the logistic loss is PSC simply because $\mathcal{Y} = \{0,1\}$, and hence
+\[
+|a'''(\eta)| \le \mathbb{E}_{p_\eta} |(Y - \mathbb{E}_{p_\eta}[Y])^3| \le \mathbb{E}_{p_\eta} [(Y - \mathbb{E}_{p_\eta}[Y])^2] = a''(\eta).
+\]
+Another example of a PSC loss arises in &lt;em&gt;Poisson regression&lt;/em&gt; where the model assumption is that $Y \sim \text{Poisson}(e^\eta)$ which corresponds to $a(\eta) = \exp(\eta)$. 
+Unfortunately, this implies heavy-tailed distribution of the calibrated design $\tilde X(\theta)$ under the model distribution which creates additional difficulties – see our paper for more details.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Another family of PSC losses arises in &lt;strong&gt;&lt;em&gt;robust estimation&lt;/em&gt;&lt;/strong&gt;. Here, $\ell(y,\eta) = \varphi(y-\eta)$ with $\varphi(\cdot)$ being convex,  even, 1-Lipschitz, and satisfying $\varphi''(0) = 1$. 
+The prototypic example of a robust loss is the &lt;em&gt;Huber loss&lt;/em&gt; corresponding to
+\[
+\varphi(t) = 
+\left\{
+\begin{align}
+&amp;amp;{t^2}/{2}, 
+&amp;amp;\quad|t| &amp;amp;\le 1, \\
+&amp;amp;\tau t    - 1/2, 
+&amp;amp;\quad |t| &amp;amp;&amp;gt; 1.
+\end{align}
+\right.
+\]
+However, $\varphi'''(t)$ doesn’t exist at $t = \pm 1$, so it is not SC nor PSC. 
+Fortunately, the Huber loss can be well-approximated by some &lt;em&gt;pseudo-Huber losses&lt;/em&gt; that turn out to be PSC (see the figure below):
+\begin{align}
+\label{def:pseudo-huber}
+\varphi(t) &amp;amp;= \log\left(\frac{\exp(t) + \exp(-t)}{2}\right), \\
+\varphi(t) &amp;amp;= \sqrt{1 + {t^2}}-1.
+\end{align}&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Finally, we can construct SC losses using the classical result from &lt;a href=&quot;https://epubs.siam.org/doi/book/10.1137/1.9781611970791?mobileUi=0&quot;&gt;[3]&lt;/a&gt; that self-concordance is preserved under taking the Fenchel conjugate.&lt;/p&gt;
+    &lt;blockquote&gt;
+      &lt;p&gt;The Fenchel conjugate of a self-concordant function $\varphi^*: D \to \mathbb{R}$, where $D \subseteq \mathbb{R}$, is also self-concordant.&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;This fact allows to construct SC losses with derivatives ranging over a given interval, by computing the convex conjugate of the logarithmic barrier of a given subset of $\mathbb{R}$. In particular, taking the log-barrier on $[-1,1]$, we obtain an analogue of Huber’s loss, and the log-barrier on $[-1,0]$ results in the analogue of the logistic loss (see the figure below). 
+Note that in the latter case, our loss does not upper bound for the 0-1 loss. However, its negative part grows as a logarithm, and using the calibration theory of &lt;a href=&quot;https://people.eecs.berkeley.edu/~wainwrig/stat241b/bartlettetal.pdf&quot;&gt;[7]&lt;/a&gt;, one can show that the related expected risk still well-approximates the probability of misclassification.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/figs/robust-for-blog.png&quot; alt=&quot;drawing&quot; width=&quot;360&quot; /&gt; &lt;img src=&quot;/figs/class-for-blog.png&quot; alt=&quot;drawing&quot; width=&quot;360&quot; /&gt;
+&lt;strong&gt;Figure.&lt;/strong&gt; Our self-concordant analogues of the Huber and logistic losses.&lt;/p&gt;
+
+&lt;h1 id=&quot;integration-argument-and-the-basic-result&quot;&gt;&lt;strong&gt;Integration argument and the basic result&lt;/strong&gt;&lt;/h1&gt;
+&lt;p&gt;By the Localization Lemma, our task reduces to proving that the empirical Hessian is stable, with high probability, in the Dikin ellipsoid $\Theta_r(\theta_*)$ with a &lt;em&gt;constant&lt;/em&gt; radius $r$. 
+On the other hand, self-concordance easily allows to get 
+\[
+r = O\left(\frac{1}{\sqrt{d}}\right)
+\] 
+using a simple integration technique sketched below. This leads to the sample size bound
+\[
+n \gtrsim d \cdot d_{eff},
+\]
+up to the dependency on $\delta$ and subgaussian constants.&lt;/p&gt;
+
+&lt;p&gt;1.
+Indeed, let the loss be SC, and recall that the Hessian of the empirical risk at point $\theta$ is
+\[
+\mathbf{H}_n(\theta) = \frac{1}{n} \sum_{i=1}^n  \ell''(Y_i,X_i^\top\theta) X_i X_i.
+\] 
+Hence, we can compare $\mathbf{H}_n(\theta)$ with $\mathbf{H}_n(\theta_*)$ by comparing $\ell''(Y_i,X_i^\top\theta)$ with $\ell''(Y_i,X_i^\top\theta_*)$.&lt;/p&gt;
+
+&lt;p&gt;2.
+Integrating $|\ell'''(y,\eta)| \le [\ell''(y,\eta)]^{3/2}$ from $\eta_* = X^\top \theta_*$ to $\eta = X^\top \theta$, we arrive at
+\[
+\frac{1}{(1+[\ell''(y,\eta_*)]^{1/2}|\eta - \eta_*|)^2} \le \frac{\ell''(y,\eta)}{\ell''(y,\eta_*)} \le \frac{1}{(1-[\ell’‘(y, \eta_*)]^{1/2}|\eta - \eta_*|)^2},
+\]
+or equivalently,
+\[
+\frac{1}{(1+|\langle \tilde X(\theta_*), \theta - \theta_* \rangle|)^2} \le \frac{\ell''(Y,X^\top \theta)}{\ell''(Y,X^\top \theta_*)} \le \frac{1}{(1- |\langle \tilde X(\theta_*), \theta - \theta_* \rangle|)^2}.
+\]
+3.
+The ratio is bounded if $|\langle \tilde X(\theta_*), \theta-\theta_* \rangle| \le c &amp;lt; 1$. By Cauchy-Schwarz, it suffices that
+\[
+\Vert\tilde X(\theta_*)\Vert_{\mathbf{H}(\theta_*)^{-1}} \Vert(\theta-\theta_*)\Vert_{\mathbf{H}(\theta_*)} \le c. 
+\]
+On the other hand, $\mathbf{H}(\theta_*)^{-1/2}\tilde X(\theta_*)$ is a $K_2$-subgaussian vector in $\mathbb{R}^d$, therefore, 
+\[
+\Vert\tilde X(\theta_*)\Vert_{\mathbf{H}(\theta_*)^{-1}} = \Vert\mathbf{H}(\theta_*)^{-1/2} \tilde X(\theta_*)\Vert_{2} = O(K_2\sqrt{d}).
+\]
+Thus, we can guarantee that  with high probability, $\mathbf{H}_n(\theta) \asymp \mathbf{H}_n(\theta_*)$ for any $\theta$ such that 
+\[
+\Vert(\theta-\theta_*)\Vert_{\mathbf{H}(\theta_*)}  \le \frac{c}{K_2 \sqrt{d}},
+\]
+i.e., in the Dikin ellipsoid $\Theta_r(\theta_*)$ with radius $r \lesssim \frac{K_2}{\sqrt{d}}$.
+Combining this with the Localization Lemma and some union bounds, we obtain the following result:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;Theorem 1.&lt;/strong&gt; Assume that the loss is self-concordant, and $\mathbf{G}^{-1/2}\nabla \ell_\theta(Y,X^\top \theta_*),$ $\mathbf{H}^{1/2}\tilde X(\theta_*)$ are, correspondingly, $K_1$- and $K_2$-
+subgaussian. Then, with probability at least $1-\delta$ it holds
+\[
+\label{eq:main-ineq}
+\boxed{
+L(\widehat\theta_n) - L(\theta_*) \lesssim \Vert\widehat\theta_n - \theta_*\Vert_{\mathbf{H}}^2 \lesssim \frac{K_1^2 d_{eff} \log(1/\delta)}{n}
+}
+\]
+provided that
+\begin{equation}
+\label{eq:n-mine-complex}
+\boxed{
+n \gtrsim \max\left\{K_2^4 \left( {\color{blue}  d} + \log\left(1/\delta\right)\right), \; {\color{red} d} K_1^2 K_2^2 {\color{blue}{d_{eff}}}\log\left(d/{\delta}\right)\right\}.
+}
+\tag{SC}
+\end{equation}&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;We see that the critical sample size grows as the &lt;strong&gt;product&lt;/strong&gt; of $d_{eff}$ and $d$, since we can only guarantee that $\mathbf{H}_n(\theta)$ is stable in the small Dikin ellipsoid with $O(1/\sqrt{d})$ radius.
+In fact, this result can be improved. But before showing how this can be achieved, let me consider the case of PSC losses.&lt;/p&gt;
+
+&lt;h1 id=&quot;pseudo-self-concordant-losses&quot;&gt;&lt;strong&gt;Pseudo self-concordant losses&lt;/strong&gt;&lt;/h1&gt;
+
+&lt;p&gt;In the case of PSC losses, a  integration argument – but this time integrating $|\ell'''(y,\eta)| \le \ell''(y,\eta)$ – implies that in order to bound the ratio of the second derivatives, we must ensure that
+\[
+\Vert X\Vert_{\mathbf{H}^{-1}} \Vert(\theta-\theta_*)\Vert_{\mathbf{H}}\le c,
+\]
+that is, the calibrated design $\tilde X(\theta_*) = [\ell''_\eta(Y,X^\top \theta_*)]^{1/2}X$ gets replaced with $X$. 
+Intuitively, this is due to the lack of the extra square root of $\ell''_\eta(y,\eta)$ in &lt;strong&gt;Definition 2&lt;/strong&gt;.
+To control $\Vert X\Vert_{\mathbf{H}(\theta_*)^{-1}}$, we can introduce the standard assumption from &lt;a href=&quot;https://projecteuclid.org/euclid.ejs/1271941980&quot;&gt;[4]&lt;/a&gt;, relating $\mathbf{H}(\theta_*)$ and the second-moment matrix of the design, $\boldsymbol{\Sigma} := \mathbb{E}[X X^\top]$, as follows:
+\[
+\boldsymbol{\Sigma} \preccurlyeq \rho \mathbf{H}.
+\]
+By a similar argument, we show that under this additional assumption, and assuming that $\boldsymbol{\Sigma}^{-1/2}X$ is $K$-subgaussian, the critical sample size from &lt;strong&gt;Theorem 1&lt;/strong&gt; gets replaced with
+\begin{equation}
+\label{eq:n-fake-complex}
+\boxed{
+n \gtrsim \max\left\{K_2^4 \left(\color{blue}{d} + \log\left({1}/{\delta}\right)\right), \; \color{red}{\rho d} K^2 K_1^2 \color{blue}{d_{eff}} \log\left(d/{\delta}\right)\right\};
+}
+\tag{PSC}
+\end{equation}
+essentially, it becomes $\rho$ times larger.
+Note that the only &lt;em&gt;generic&lt;/em&gt; upper bound available for $\rho$ is
+\[
+\rho \le \frac{1}{\inf_{\eta} \ell''_{\eta}(y,\eta)},
+\]
+where $\eta$ ranges over the set $\left\{\eta(\theta) = X^{\top} \theta, \;\theta \in \Theta \right\},$ and $\Theta$ is the set of possible predictors. In particular, in logistic regression with $\Vert X \Vert_2 \le D$ and $\Theta = {\theta \in \mathbb{R}^d: \Vert\theta\Vert_2 \le R}$, this gives 
+\[
+\rho \lesssim \exp({RD}).
+\]
+Moreover, this bound is achievable on a certain (quite artificial) distribution of $X$ as shown in &lt;a href=&quot;http://proceedings.mlr.press/v35/hazan14a.html&quot;&gt;[8]&lt;/a&gt;.
+However, the &lt;em&gt;actual&lt;/em&gt; value of $\rho$ depends on the data distribution, and is moderate when this distribution is not chosen adversarially as discussed in &lt;a href=&quot;https://arxiv.org/abs/1306.2119&quot;&gt;[9]&lt;/a&gt;.
+In fact, in the paper we show that in logistic regression with Gaussian design $X \sim \mathcal{N}(0, \boldsymbol{\Sigma})$ one has
+\[
+\rho \lesssim 1+\Vert\theta_*\Vert_{\boldsymbol{\Sigma}}^3.
+\]
+Still, $\rho \gg 1$ when $\Vert\theta_*\Vert_{\boldsymbol{\Sigma}} \gg 1$, and our construction of self-concordant analogues of the Huber and logistic losses remains useful.&lt;/p&gt;
+
+&lt;h1 id=&quot;near-linear-bounds-by-a-covering-argument&quot;&gt;&lt;strong&gt;Near-linear bounds by a covering argument&lt;/strong&gt;&lt;/h1&gt;
+
+&lt;p&gt;In fact, we can get rid of the extra $O(d)$ factor in the previous bounds for the critical sample size, and obtain the bounds that scale near-linearly in $\max(d, d_{eff})$. 
+In particular, in the case of self-concordant losses the critical sample size in the case of SC losses can be reduced to
+\begin{equation}
+\label{eq:n-mine-improved}
+\boxed{
+n \gtrsim \max\left\{\bar K_2^4 d\log\left({d}/\delta\right), \; K_1^2 \bar K_2^6 d_{eff}  \log\left(1/\delta\right)\right\}.
+}
+\tag{SC$^*$}
+\end{equation}
+This is done via a more delicate argument, as explained below, and under the mild extra assumption that the calibrated design
+$
+\tilde X(\theta)
+$
+is $\bar K_2$-subgaussian, when multiplied by $\mathbf{H}(\theta)$, at every point $\theta$ of the unit Dikin ellipsoid $\Theta_1(\theta_*)$, with $\bar K_2$ independent of $\theta$.
+For pseudo self-concordant losses, the second bound gets inflated by $\rho$; on the other hand, the radius of the Dikin ellipsoid in which $\tilde X(\theta)$ is required to be uniformly subgaussian decreases by the factor of $1/\sqrt{\rho}$. In fact, the extra assumption appears to be essetial. 
+For example, in the paper we show that in logistic regression with $X \sim \mathcal{N}(0,\boldsymbol{\Sigma})$, one has
+\[
+\bar K_2 \lesssim K_2 + 1,
+\]
+where $K_2$ is the subgaussian constant of $\mathbf{H}(\theta_*)^{-1/2}\tilde X(\theta_*)$, and the two assumptions are equivalent.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/figs/covering-cropped.png&quot; alt=&quot;drawing&quot; width=&quot;600&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Let us briefly explain the main ideas behind the proof of the improved bounds (see the figure above).
+First of all, recall that the extra $d$ factor in the previous bounds appeared because we used self-concordance of the &lt;em&gt;individual losses&lt;/em&gt;, which only allowed to prove stability of the empirical Hessian in a small Dikin ellipsoid with radius $O(1/\sqrt{d})$.
+This factor would be eliminated if we managed to show a probabilistic bound
+\[
+\mathbf{H}_n(\theta) \asymp \mathbf{H}_n(\theta_*), 
+\]
+uniformly over the Dikin ellipsoid $\Theta_{c}(\theta_*)$ with a constant radius.
+Such bound could have been obtained via an integration argument, should we have self-concordance of $L_n(\theta)$.
+However, unlike the individual losses, &lt;em&gt;the empirical risk is not self-concordant&lt;/em&gt;,  we have to come up with a more subtle argument. 
+In a nutshell, this argument combines the following ingredients:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;em&gt;Self-concordance of expected risk&lt;/em&gt; $L(\theta)$ on $\Theta_c(\theta_*)$, with $c = 1/\bar K_2^{3/2}$, which follows from the subgaussian assumption about $\tilde X(\theta)$ and the relation between the moments of a subgaussian vector. This guarantees that for any $\theta \in \Theta_c(\theta_*)$ it holds
+\[
+\mathbf{H}(\theta) \asymp \mathbf{H}(\theta_*).
+\]&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;em&gt;Self-concordance of the individual losses&lt;/em&gt; which guarantees, for any $\theta_0 \in \mathbb{R}^d$ and $\theta \in \Theta_{1/\sqrt{d}}(\theta_0)$, that
+\[
+\mathbf{H}_n(\theta) \asymp \mathbf{H}_n(\theta_0).
+\]&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Finally, a &lt;em&gt;covering argument&lt;/em&gt;, in which $\Theta_c(\theta_*)$  is covered with smaller $O(1/\sqrt{d})$-ellipsoids. The problem then reduces to the control of the supremum
+\[
+\sup_{\theta_0 \in \mathcal{N}} \Vert \mathbf{H}(\theta_0)^{-1/2} \mathbf{H}_n(\theta_0) \mathbf{H}(\theta_0)^{-1/2}\Vert,
+\]
+where $\Vert\cdot\Vert$ is the operator norm, and $\mathcal{N}$ is the epsilon-net corresponding to the covering of $\Theta_c(\theta_*)$.
+This gives the extra $O(\log d)$ factor in \eqref{eq:n-mine-improved} since $\log(|\mathcal{N}|) = O(d \log d)$.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;&lt;strong&gt;Conclusion&lt;/strong&gt;&lt;/h1&gt;
+&lt;p&gt;We have demonstrated how to obtain fast rates for the excess risk of $M$-estimators in finite-sample regimes. 
+Our analysis can handle $M$-estimators with losses satisfying certain self-concordance-type assumptions that hold in some generalized linear models, notably logistic regression, and in robust estimation.
+These assumptions allow to control the precision of the local quadratic approximations of the empirical risk.&lt;/p&gt;
+
+&lt;p&gt;One topic that remained beyond the scope of this post is the $\ell_1$-regularized estimators in sparse high-dimensional regimes. There, we have not yet established the improved rates that should scale near-linearly with the sparsity of $\theta_*$. Another possible extension are matrix-parametrized models that arise in covariance matrix estimation and independent component analysis, and application of our techniques to algorithmically efficient procedures such as stochastic approximation.&lt;/p&gt;
+
+&lt;h1 id=&quot;references&quot;&gt;&lt;strong&gt;References&lt;/strong&gt;&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://projecteuclid.org/euclid.aos/1015957395#info&quot;&gt;[1] B. Laurent and P. Massart. Adaptive estimation of a quadratic functional by model selection.&lt;/a&gt; 
+&lt;em&gt;Ann. Statist.&lt;/em&gt;, 28:5(2000), 1302-1338.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://projecteuclid.org/euclid.aos/1360332187#info&quot;&gt;[2] V. Spokoiny. Parametric estimation. Finite sample theory.&lt;/a&gt; 
+&lt;em&gt;Ann. Statist.&lt;/em&gt;, 40:6(2012), 2877-2909.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://epubs.siam.org/doi/book/10.1137/1.9781611970791?mobileUi=0&quot;&gt;[3] A. Nemirovski and Yu. Nesterov. Interior-point polynomial algorithms in convex programming.&lt;/a&gt; 
+&lt;em&gt;Society for Industrial and Applied Mathematics, Philadelphia, 1994.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://projecteuclid.org/euclid.ejs/1271941980&quot;&gt;[4] F. Bach. Self-concordant analysis for logistic regression.&lt;/a&gt; 
+&lt;em&gt;Electron. J. Stat., 4(2010), 384-414.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://arxiv.org/abs/1011.3027&quot;&gt;[5] R. Vershynin. Introduction to the non-asymptotic analysis of random matrices.&lt;/a&gt; 
+&lt;em&gt;Compressed Sensing: Theory and Applications, 210–268&lt;/em&gt;. Cambridge University Press, 2012.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://proceedings.mlr.press/v23/hsu12/hsu12.pdf&quot;&gt;[6] D. Hsu, S. Kakade, and T. Zhang. Random design analysis of ridge regression.&lt;/a&gt; &lt;em&gt;COLT, 2012.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://people.eecs.berkeley.edu/~wainwrig/stat241b/bartlettetal.pdf&quot;&gt;[7] P. Bartlett, M. Jordan, and J. McAuliffe. Convexity, classification, and risk bounds.&lt;/a&gt;
+&lt;em&gt;J. Am. Stat. Assoc.&lt;/em&gt;, 101:473(2006), 138–156.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://proceedings.mlr.press/v35/hazan14a.html&quot;&gt;[8] E. Hazan, T. Koren, and K. Levy. Logistic regression: tight bounds for stochastic and online optimization.&lt;/a&gt;
+&lt;em&gt;COLT, 2014.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://arxiv.org/abs/1306.2119&quot;&gt;[9] F. Bach and E. Moulines. Non-strongly-convex smooth stochastic approximation with convergence rate $O(1/n)$.&lt;/a&gt;
+&lt;em&gt;NIPS, 2013.&lt;/em&gt;&lt;/p&gt;</content><author><name>Dmitrii M. Ostrovskii</name></author><summary type="html">This the second of two posts where I present our work with Francis Bach on the optimal rates for $M$-estimators. Recall that in the previous post, we have proved the Localization Lemma which states the following: stability of the empirical risk Hessian $\mathbf{H}_n(\theta)$ on the Dikin ellipsoid $\Theta_{r}(\theta_*)$ with radius $r$, \[ \mathbf{H}_n(\theta) \asymp \mathbf{H}_n(\theta_*), \, \forall \theta \in \Theta_{r}(\theta_*), \] guarantees that once the score $\Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2$ reaches \[ \Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2 \lesssim r^2, \] one has the desired excess risk bound: \[ L(\widehat \theta_n) - L(\theta_*) \lesssim \Vert\widehat \theta_n - \theta_*\Vert_{\mathbf{H}}^2 \lesssim \Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2 \] In this post, we will show how self-concordance can be used to prove stability guarantees for $\mathbf{H}_n(\theta)$.</summary></entry><entry><title type="html">Finite-sample analysis of $M$-estimators using self-concordance, Part I</title><link href="http://localhost:4000/jekyll/update/2018/11/12/self-concordance-part-1.html" rel="alternate" type="text/html" title="Finite-sample analysis of $M$-estimators using self-concordance, Part I" /><published>2018-11-12T00:00:00+01:00</published><updated>2018-11-12T00:00:00+01:00</updated><id>http://localhost:4000/jekyll/update/2018/11/12/self-concordance-part-1</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2018/11/12/self-concordance-part-1.html">&lt;p&gt;In this series of posts, I will present our &lt;a href=&quot;https://arxiv.org/abs/1810.06838&quot;&gt;&lt;strong&gt;recent work with Francis Bach&lt;/strong&gt;&lt;/a&gt; on the optimal rates for $M$-estimators with self-concordant-like losses. The term “$M$-estimator” is more commonly used in the statistical community; in the learning theory community one more often talks about empirical risk minimization. 
+The two are the same; I will mostly use the statistical terminology to stress the connections to the classical asymptotic results.&lt;/p&gt;
+
+&lt;h1 id=&quot;setting&quot;&gt;&lt;strong&gt;Setting&lt;/strong&gt;&lt;/h1&gt;
+
+&lt;p&gt;We work in the familiar statistical learning setting: the goal is to predict the &lt;em&gt;label&lt;/em&gt; $Y \in \mathcal{Y}$ as some function of the dot product $\eta = X^\top \theta$ between the &lt;em&gt;predictor&lt;/em&gt; $X \in \mathbb{R}^d$ and &lt;em&gt;parameter&lt;/em&gt; $\theta \in \mathbb{R}^d$. This is formalized as minimization of &lt;strong&gt;expected risk&lt;/strong&gt;
+\[
+L(\theta) := \mathbb{E}[\ell(Y,X^\top\theta)],
+\]
+where $\ell: \mathcal{Y} \times \mathbb{R} \to \mathbb{R}$ is some &lt;em&gt;loss function&lt;/em&gt;, and $\mathbb{E}[\cdot]$ is expectation over the distribution $\mathcal{P}$ of the observation $Z = (X,Y)$. Let $\theta_*$ be a minimizer of $L(\theta)$, which will prove to be unique in our situation.
+Since the distribution $\mathcal{P}$ is unknown, we cannot find $\theta_*$ directly. Instead we observe an i.i.d. sample 
+\[
+(X_1,Y_1), …, (X_n, Y_n)
+\] 
+from $\mathcal{P}$, and compute the empirical counterpart of $\theta_*$, a minimizer $\widehat \theta_n$ of &lt;strong&gt;empirical risk&lt;/strong&gt;
+\[
+L_n(\theta) := \frac{1}{n}\sum_{i=1}^n \ell(Y_i,X_i^\top\theta).
+\]
+This setting includes regression in the case $\mathcal{Y} = \mathbb{R}$ (usually one also takes $\ell(y,y’) = \varphi(y-y’)$ for some function $\varphi: \mathbb{R} \to \mathbb{R}$, e.g., the squared loss) and classification in the case $\mathcal{Y} = \{0,1\}$.&lt;/p&gt;
+
+&lt;p&gt;To understand our somewhat unusual loss parametrization, note that when 
+$
+\ell(y,\eta) = - \log p_{\eta}(y)
+$ 
+for some probability distribution $p_{\eta}(\cdot)$ on $\mathcal{Y}$ parametrized by $\eta \in \mathbb{R}$, we have a conditional likelihood model for $Y$ given $X^{\top} \theta$, and then $\widehat \theta_n$ becomes the maximum likelihood estimator (MLE). This includes, in particular, &lt;em&gt;least squares&lt;/em&gt; and &lt;em&gt;logistic regression&lt;/em&gt;. More generally, this is the case in &lt;em&gt;generalized linear models&lt;/em&gt; (GLMs) with canonical parametrization, where the loss takes the form
+\begin{equation}
+\label{def:glm}
+\ell(y,\eta) = - y\eta + a(\eta) - b(y),
+\end{equation}
+where $a(\eta): \mathbb{R} \to \mathbb{R}$, called &lt;em&gt;the cumulant&lt;/em&gt;, normalizes $\ell(y,\eta)$ to be a valid negative log-likelihood:
+\[
+a(\eta) = \log \int_{\mathcal{Y}} \exp(y\eta + b(y)) \, \text{d}y.
+\]&lt;/p&gt;
+
+&lt;p&gt;More generally, we can talk about &lt;em&gt;quasi-MLE&lt;/em&gt; where one removes the implicit assumption that $\mathcal{Y}$ is indeed generated by one of the distributions $p_{\eta}(\cdot)$ for some value $\eta_*$.  In this case, the asymptotic properties of $\widehat\theta_n$ have long been studied in statistics in the theory of &lt;em&gt;Local Asymptotic Normality&lt;/em&gt;. Our goal in this work was to extend this theory the finite-sample setting, and beyond the quasi-MLE setup, that is, for general $M$-estimators. We will now make a brief tour of this theory.&lt;/p&gt;
+
+&lt;h1 id=&quot;overview-of-asymptotic-theory&quot;&gt;&lt;strong&gt;Overview of asymptotic theory&lt;/strong&gt;&lt;/h1&gt;
+&lt;p&gt;LAN theory concerns the limit $n \to \infty$ with fixed $d$, and relies on the local regularity assumptions, requiring that $L(\theta)$ is sufficiently smooth at $\theta_*$, so that $\nabla L(\theta_*) = 0$, and &lt;em&gt;the excess risk&lt;/em&gt;
+$
+L(\theta) - L(\theta_*)
+$
+can be well-approximated by its 2nd-order Taylor expansion, or the squared &lt;em&gt;prediction distance&lt;/em&gt; 
+\[
+\frac{1}{2} \Vert \theta - \theta_* \Vert_{\mathbf{H}}^2 := \frac{1}{2} \Vert \mathbf{H}^{1/2}(\theta - \theta_*) \Vert^2,
+\]
+where $\mathbf{H}$ is the risk Hessian at the optimum:
+\[
+\mathbf{H} := \nabla^2 L(\theta_*),
+\]
+and one usually assumes that $\mathbf{H} \succ 0$.
+Note that in the case of least squares, we simply have 
+\[
+L(\theta) - L(\theta_*) = \frac{1}{2} \Vert\theta - \theta_*\Vert_{\mathbf{H}}.
+\]
+These assumptions allow to derive the &lt;em&gt;local asymptotic normality&lt;/em&gt; of quasi MLE, or Fisher’s theorem:
+\begin{equation}
+\label{eq:lan-fisher}
+\sqrt{n}\mathbf{H}^{1/2}(\widehat\theta_n - \theta_*)  \rightsquigarrow \mathcal{N}(0, \mathbf{H}^{-1/2} \mathbf{G} \mathbf{H}^{-1/2}),
+\tag{1}
+\end{equation}
+where $\rightsquigarrow$ is convergence in the law, and $\mathbf{G}$ is the covariance matrix of the loss gradient at $\theta_*$:
+\[
+\mathbf{G} := \mathbb{E} \left[ \nabla_\theta \ell(Y,X^\top\theta_*) \otimes \nabla_\theta \ell(Y,X^\top\theta_*) \right].
+\] 
+In well-specified MLE, one has the &lt;em&gt;Bartlett identity&lt;/em&gt; $\mathbf{G} = \mathbf{H}$; then, $\mathbf{H}^{-1/2} \mathbf{G} \mathbf{H}^{-1/2}$ is the identity, and 
+\[
+\text{Tr}[\mathbf{H}^{-1/2} \mathbf{G} \mathbf{H}^{-1/2}] = d.
+\]
+In the general case, we can define the &lt;em&gt;effective dimension&lt;/em&gt;
+\[
+d_{eff} := \text{Tr} [\mathbf{H}^{-1/2} \mathbf{G} \mathbf{H}^{-1/2}],
+\]
+and hope that it is not much larger than $d$, i.e., the model is only “moderately” misspecified. 
+In some cases this is known to be true: for example, in least-squares regression one has
+$
+d_{eff} \le \kappa_X \cdot \kappa_Y \cdot d,
+$
+irrespectively of the true distribution of the noise, whenever $X$ and $Y$ have bounded kurtoses $\kappa_X, \kappa_Y$:
+\[
+\mathbb{E}[(Y-\mathbb{E}[Y])^4]^{1/4} \le \kappa_Y \cdot \mathbb{E}[(Y-\mathbb{E}[Y])^2]^{1/2},
+\]
+\[
+\mathbb{E}[\left\langle u, X-\mathbb{E}[X] \right\rangle^4]^{1/4} \le \kappa_X \cdot \mathbb{E}[\left\langle u, X-\mathbb{E}[X] \right\rangle^2]^{1/2}, \quad \forall u \in \mathbb{R}^d.
+\]&lt;/p&gt;
+
+&lt;p&gt;Returning to the results of the LAN theory, \eqref{eq:lan-fisher} implies that the scaled prediction error $n\Vert \widehat\theta_n-\theta_*\Vert_{\mathbf{H}}^2$ asymptotically has the generalized chi-square distribution – namely, it distributed as the square of $\mathcal{N}(0, \mathbf{H}^{-1/2} \mathbf{G} \mathbf{H}^{-1/2})$. 
+Moreover, it can also be obtained that $2n[L(\widehat\theta_n) - L(\theta_*)]$ has the same asymptotic distribution. 
+Using the standard chi-square deviation bound from &lt;a href=&quot;https://projecteuclid.org/euclid.aos/1015957395#info&quot;&gt;[1]&lt;/a&gt;, we can summarize this result in terms of asymptotic confidence bounds for the excess risk and prediction distance:
+\begin{equation}
+\label{eq:crb-prob}
+\boxed{
+\begin{aligned}
+L(\widehat\theta_n)  - L(\theta_*) 
+&amp;amp;= \frac{1}{2} \Vert\theta - \theta_*\Vert_{\mathbf{H}}^2 + o(n^{-1}) = \frac{d_{eff} (1 + \sqrt{2\log(1/\delta)})^2}{2n} + o(n^{-1}).
+\end{aligned}
+}
+\tag{$\star$}
+\end{equation}&lt;/p&gt;
+
+&lt;p&gt;In fact, the analysis leading to \eqref{eq:crb-prob} can be summarized in three steps:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;First, one can easily control the squared “natural” norm of the score, $\Vert\nabla L_n(\theta_*)\Vert_{\mathbf{H}^{-1}}^2$, by the central limit theorem, since it is the average of i.i.d. quantities – squared norms of the gradients
+\[
+\Vert \nabla_{\theta} \ell(Y_i,X_i^\top \theta_*) \Vert_{\mathbf{H}}^2, \quad 1 \le i \le n.
+\]&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Then one can prove that as $n \to \infty$, the empirical risk can be approximated by its 2nd-order Taylor expansion
+\[
+L_n(\theta_*) + \left\langle \nabla L_n(\theta_*),\theta - \theta_*\right\rangle + \frac{1}{2} \Vert \widehat\theta_n - \theta_* \Vert^2_{\mathbf{H}_n}
+\]
+where
+\[
+\mathbf{H}_n = \nabla^2 L_n(\theta_*)
+\]
+is the empirical Hessian at $\theta_*$. Since $\mathbf{H}_n$ converges to $\mathbf{H}$ in the positive-semidefinite sense, this allows to &lt;em&gt;localize&lt;/em&gt; the estimate:
+\begin{align}
+0 \ge L_n(\widehat\theta_n) - L_n(\theta_*) 
+&amp;amp;\approx \left\langle \nabla L_n(\theta_*),\widehat \theta_n - \theta_*\right\rangle + \frac{1}{2} \Vert\widehat\theta_n - \theta_*\Vert_{\mathbf{H}_n}^2 \\
+&amp;amp;\approx \left\langle \nabla L_n(\theta_*),\widehat \theta_n - \theta_*\right\rangle + \frac{1}{2} \Vert\widehat\theta_n - \theta_*\Vert_{\mathbf{H}}^2  \label{eq:localization-chain}\tag{2}\\
+&amp;amp;= \left\langle \mathbf{H}^{-1/2} \nabla L_n(\theta_*), \mathbf{H}^{1/2}(\widehat \theta_n - \theta_*)\right\rangle + \frac{1}{2} \Vert\widehat\theta_n - \theta_*\Vert_{\mathbf{H}}^2 \\
+&amp;amp;\ge -\Vert \nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}} \Vert\widehat \theta_n - \theta_* \Vert_{\mathbf{H}} + \frac{1}{2} \Vert\widehat\theta_n - \theta_*\Vert_{\mathbf{H}}^2. 
+\end{align}
+where the transition to the second line uses that $\mathbf{H}_n$ converges to $\mathbf{H}$, and the last transition is by Cauchy-Schwarz.
+As a result, we arrive at
+\[
+\frac{1}{2} \Vert\widehat\theta_n - \theta_*\Vert_{\mathbf{H}}^2 \le 2 \Vert\nabla L_n(\theta_*)\Vert_{\mathbf{H}^{-1}}^2.
+\]&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Once the localization is achieved, one can similarly control the excess risk $L(\widehat\theta_n) - L(\theta_*)$ through its second-order Taylor approximation $\frac{1}{2} \Vert\widehat\theta_n - \theta_*\Vert_{\mathbf{H}}^2$. 
+For this, one shows that the Hessian at $\theta$,
+\[
+\mathbf{H}(\theta) := \nabla^2 L(\theta),
+\] 
+remains nearly constant in the &lt;strong&gt;Dikin ellipsoid&lt;/strong&gt;
+\[
+\Theta_{r}(\theta_*) = \left\{ \theta \in \mathbb{R}^d: \Vert\theta - \theta_*\Vert_{\mathbf{H}} \le r \right\}
+\]
+with a constant radius $r = O(1)$, where by ``near-constant’’ we mean that 
+\[
+c \mathbf{H}(\theta_*) \preccurlyeq \mathbf{H}(\theta) \preccurlyeq C\mathbf{H}(\theta_*)
+\] 
+in the positive-semidefinite sense for some constants $0 &amp;lt; c \le 1$ and $C \ge 1$, concisely written as
+\[
+\mathbf{H}(\theta) \asymp \mathbf{H}(\theta_*).
+\]
+This classical fact, whose proof we omit here, can be obtained from the relation between the second and third moments of the &lt;em&gt;calibrated design&lt;/em&gt; – the vector $\tilde X$ satisfying $\mathbb{E}[\tilde X \tilde X^{\top}] = \mathbf{H}$:
+\[
+\tilde X(\theta_*) := [\ell_{\eta}''(Y,X^\top \theta_*)]^{1/2} X.
+\]&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;finite-sample-setup-the-challenge&quot;&gt;&lt;strong&gt;Finite-sample setup: the challenge&lt;/strong&gt;&lt;/h1&gt;
+&lt;p&gt;When we want to prove a non-asymptotic analogue of \eqref{eq:crb-prob} in the finite-sample setup, the first step of the asymptotic ‘‘recipe’’ remains more or less the same: one can simply use Hoeffding’s inequality instead of the central limit theorem to control $\Vert \nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2$ under subgaussian assumptions on the loss gradients. 
+Also, the third step relies to a non-statistical argument since the sample size does not figure in it at all, so there are no changes here as well.
+Thus, the challenge is in the second (localization) step: now we must prove that $L_n(\widehat\theta_n) - L_n(\theta_*)$ is close to its second-order Taylor approximation centered at $\theta_*$, without taking the limit. As we will see a bit later, this could be reduced to showing that $\mathbf{H}_n(\theta)$ is near-constant, with high probability, uniformly over the Dikin ellipsoid $\Theta_{c}(\theta_*)$ with constant radius. Since the same property is known to be  for the non-random Hessian $\mathbf{H}(\theta)$, our task boils down to bounding the uniform deviations of $\mathbf{H}_n(\theta)$ from $\mathbf{H}(\theta)$ on $\Theta_{c}(\theta_*)$. Generally, this task is rather complicated, and requires the advanced theory of empirical processes together with some global assumptions on the whole domain of $\theta$, see, e.g., &lt;a href=&quot;https://projecteuclid.org/euclid.aos/1360332187#info&quot;&gt;[2]&lt;/a&gt;.
+However, in some cases it can be made simpler through the delicate use of &lt;strong&gt;self-concordance&lt;/strong&gt;. 
+This concept was introduced in &lt;a href=&quot;https://epubs.siam.org/doi/book/10.1137/1.9781611970791?mobileUi=0&quot;&gt;[3]&lt;/a&gt; in the context of interior-point methods, and brought to the attention of the statistical learning community in &lt;a href=&quot;https://projecteuclid.org/euclid.ejs/1271941980&quot;&gt;[4]&lt;/a&gt;. 
+Our next goal is to understand the role of this concept in the finite-sample analysis.&lt;/p&gt;
+
+&lt;h1 id=&quot;simple-case-least-squares&quot;&gt;&lt;strong&gt;Simple case: least squares&lt;/strong&gt;&lt;/h1&gt;
+&lt;p&gt;In the simplest case of (linear) least-squares, that is, when
+\[
+\ell(Y,X^\top \theta) = \frac{1}{2} (Y - X^\top\theta)^2,
+\]
+the analysis is rather straightforward since $L_n(\theta)$ and $L(\theta)$ are quadratic forms. All that is needed is to apply a concentration inequality to $\Vert\nabla L_n(\theta_*)\Vert_{\mathbf{H}}$, and make sure that $\mathbf{H}_n \asymp \mathbf{H}$ to guarantee that the first transition in the chain \eqref{eq:localization-chain} remains valid.
+Specifically, recalling the definition of calibrated design $\tilde X(\theta)$, we see that In least-squares it coincides with $X$ at any point $\theta$, hence,
+\[
+\mathbf{H} \equiv \mathbb{E}[X X^{\top}], \quad \mathbf{H}_n \equiv \frac{1}{n}\sum_{i=1}^n X_i X_i^{\top}.
+\]
+Thus, the analysis is thus reduced to controlling the deviations of a &lt;em&gt;single&lt;/em&gt; sample covariance matrix – that of $X$ – from its expectation. This can be done using the well-known result from &lt;a href=&quot;https://arxiv.org/abs/1011.3027&quot;&gt;[5]&lt;/a&gt;: assuming that the decorrelated design $\mathbf{H}^{-1/2} X$ is $K$-&lt;em&gt;subgaussian&lt;/em&gt;, that is, for any direction $u \in \mathbb{R}^d$ it holds
+\[
+\mathbb{E}\left[\exp \left\langle u, \mathbf{H}^{-1/2} X \right\rangle \right] \le \exp(K^2\Vert u\Vert_2^2/2),
+\]
+we have $\mathbf{H}_n \asymp \mathbf{H}$
+with probability at least $1-\delta$ as soon as 
+\[
+\boxed{
+n \gtrsim K^4  (d + \log(1/\delta)),
+}
+\]
+where $a \gtrsim b$ is a shorthand for $b = O(a)$.
+When combined together, this gives the $O(d/n)$ rate in the regime $n = \Omega(d)$. Next we will show how to extend this result, first obtained in &lt;a href=&quot;http://proceedings.mlr.press/v23/hsu12/hsu12.pdf&quot;&gt;[6]&lt;/a&gt;, beyond the case of least squares.&lt;/p&gt;
+
+&lt;h1 id=&quot;key-observation-localization-lemma&quot;&gt;&lt;strong&gt;Key observation: Localization Lemma&lt;/strong&gt;&lt;/h1&gt;
+
+&lt;p&gt;Before we embark to self-concordance, I will demonstrate that the localization of $\widehat\theta_n$ in the Dikin ellipsoid $\Theta_r(\theta_*)$ of some radius $r$ is guaranteed if we show the uniform approximation bound 
+\[
+\mathbf{H}_n(\theta) \asymp \mathbf{H}_n(\theta_*)
+\]
+on $\Theta_r(\theta_*)$. In what follows, we assume that the loss is convex. 
+Also, we assume that the (decorrelated) calibrated design $\mathbf{H}^{-1/2} \tilde X(\theta_*)$, is $K_2$-subgaussian, and for some $\delta \in (0,1)$ it holds
+\[
+n \gtrsim K_2^4 (d + \log(1/\delta)),
+\] 
+so that we can apply the result of &lt;a href=&quot;https://arxiv.org/abs/1011.3027&quot;&gt;[5]&lt;/a&gt;, and with probability $1-\delta$ identify the empirical and true Hessians at a &lt;em&gt;single point&lt;/em&gt; $\theta_*$: $\mathbf{H}_n \asymp \mathbf{H}$ (recall that we use $\mathbf{H}$ and $\mathbf{H}_n$, without parentheses, as shorthands for $\mathbf{H}(\theta_*)$ and $\mathbf{H}_n(\theta_*)$).
+We then have an auxiliary result called the Localization Lemma.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;Localization lemma.&lt;/strong&gt;
+Suppose that $n \gtrsim K_2^4 (d + \log(1/\delta))$, and for some $r \ge 0$ it holds
+\[
+\mathbf{H}_n(\theta) \asymp \mathbf{H}_n(\theta_*), \, \forall \theta \in \Theta_{r}(\theta_*).
+\] 
+Then, for any $r_0 \le r$, the following holds: whenever
+\[
+\Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2 \lesssim r_0^2,
+\]
+we have that $\widehat\theta_n$ belongs to $\Theta_{r_0}(\theta_*)$, and moreover,
+\[
+L(\widehat \theta_n) - L(\theta_*) \lesssim \Vert\widehat \theta_n - \theta_*\Vert_{\mathbf{H}}^2 \lesssim \Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2.
+\]&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;Proof sketch.&lt;/strong&gt; By definition, $L_n(\widehat\theta_n) \le L_n(\theta_*)$. Assume that $\widehat\theta_n$ is not in $\Theta_{r_0}(\theta_*)$, and choose the point $\bar \theta_n$ on the segment $[\theta_*,\widehat\theta_n]$ such that $\bar \theta_n$ is precisely on the boundary of $\Theta_{r_0}(\theta_*)$, so that 
+\[
+\Vert\bar \theta_n - \theta_*\Vert_{\mathbf{H}} = r_0.
+\]
+Note that by convexity of the level sets of $L_n(\theta)$, we still have $L_n(\bar\theta_n) \le L_n(\theta_*).$
+On the other hand, by the intermediate value theorem, for some $\theta’_n$ belonging to the segment $[\theta_*, \bar\theta_n]$, and hence to $\Theta_{r_0}(\theta_*)$, it holds
+\begin{align}
+0 \ge L_n(\bar\theta_n) - L_n(\theta_*) 
+&amp;amp;= \left\langle \nabla L_n(\theta_*), \bar\theta_n - \theta_* \right\rangle + \frac{1}{2} \Vert \bar\theta_n - \theta_*\Vert_{\mathbf{H}_n(\theta’_n)}^2 \\
+&amp;amp;\approx \left\langle \nabla L_n(\theta_*), \bar\theta_n - \theta_* \right\rangle + \frac{1}{2} \Vert \bar\theta_n - \theta_* \Vert_{\mathbf{H}_n}^2 \\
+&amp;amp;\approx \left\langle \nabla L_n(\theta_*), \bar\theta_n - \theta_* \right\rangle + \frac{1}{2} \Vert \bar\theta_n - \theta_*\Vert_{\mathbf{H}}^2 \\
+&amp;amp;\ge - \Vert \nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}} \Vert\bar\theta_n - \theta_* \Vert_{\mathbf{H}} + \frac{1}{2} \Vert \bar\theta_n - \theta_*\Vert_{\mathbf{H}}^2 \\
+&amp;amp;= - r_0 \Vert \nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}} + \frac{r_0^2}{2},
+\end{align}
+where we use $a \approx b$ as a shorthand for saying that $a$ and $b$ are within a multiplicative constant factor from each other, and used that~$\mathbf{H}_n(\theta’_n) \asymp \mathbf{H}_n(\theta_*)$ in the second line.
+Rearranging the terms, we arrive at a contradiction, so in fact $\widehat\theta_n$ must belong to $\Theta_{r_0}(\theta_*)$. 
+This proves the first claim of the lemma. 
+Now that we know that $\widehat\theta_n \in \Theta_{r_0}(\theta_*)$, we can also prove that 
+\[
+\Vert\widehat \theta_n - \theta_*\Vert_{\mathbf{H}}^2 \lesssim \Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2
+\]
+by replacing $\bar \theta_n$ with $\widehat\theta_n$ in the above chain of inequalities. Finally, 
+\[
+L(\widehat \theta_n) - L(\theta_*) \lesssim \Vert\widehat \theta_n - \theta_*\Vert_{\mathbf{H}}^2
+\]
+also follows from the intermediate value theorem. using that $\widehat \theta_n$ belongs to the ellipsoid $\Theta_r(\theta_*)$ in which $\mathbf{H}_n(\theta) \asymp \mathbf{H}_n(\theta_*)$, and applying the sample covariance matrix concentration result to $\mathbf{H}_n(\theta_*)$. $\blacksquare$&lt;/p&gt;
+
+&lt;h1 id=&quot;why-the-constant-radius&quot;&gt;&lt;strong&gt;Why the constant radius?&lt;/strong&gt;&lt;/h1&gt;
+
+&lt;p&gt;Recall that the gradient of the empirical risk is the average of i.i.d. random vectors,
+\[
+\nabla L_n(\theta_*) = \frac{1}{n} \sum_{i = 1}^n \nabla_{\theta} \ell(Y_i,X_i^\top \theta_*),
+\]
+and each $\nabla_{\theta} \ell(Y_i,X_i^\top \theta)$ has covariance $\mathbf{G}$. Assuming that decorrelated gradients $\mathbf{G}^{-1/2}\nabla_{\theta} \ell(Y_i,X_i^\top \theta_*)$ are $K_1$-subgaussian, Bernstein inequality implies, with probability $\ge 1-\delta$,
+\[
+\Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2 \lesssim \frac{K_1^2 d_{eff} \log(1/\delta)}{n}.
+\]
+Hence, the localization lemma implies that if we can guarantee that $\mathbf{H}_n(\theta)$ is near-constant over the Dikin ellipsoid of radius $r$, the sample size sufficient to guarantee a finite-sample analogue of \eqref{eq:crb-prob} is
+\[
+\boxed{
+n \gtrsim \max \left\{ K_2^4 (d+ \log(1/\delta)),  \; \color{red}{r^2} K^2 K_1^2 {\color{blue}{d_{eff}}} \log(1/\delta) \right\}.
+}
+\] 
+The first bound guarantees reliable estimation of the risk curvature at the optimum, and is the same as in linear regression, so we have reasons to suggest that it is unavoidable. 
+On the other hand, the second bound is related to the fact that the loss is not quadratic, and dominates the first one, assuming $d_{eff} = O(d)$, unless $r$ – the radius of the Dikin ellipsoid in which $\mathbf{H}_n(\theta) \asymp \mathbf{H}_n(\theta_*)$ with high probability – is &lt;em&gt;constant&lt;/em&gt;. 
+In the next post, we will see how self-concordance leads to Hessian approximation bounds of this type with $r = O(\sqrt{d})$ which results in the $O(d \cdot d_{eff})$ sample size, and how this can be improved to $r = O(1)$ and 
+$
+n = O(\max(d,d_{eff}))
+$
+with a more subtle argument.&lt;/p&gt;
+
+&lt;h1 id=&quot;references&quot;&gt;&lt;strong&gt;References&lt;/strong&gt;&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://projecteuclid.org/euclid.aos/1015957395#info&quot;&gt;[1] B. Laurent and P. Massart. Adaptive estimation of a quadratic functional by model selection.&lt;/a&gt; 
+&lt;em&gt;Ann. Statist.&lt;/em&gt;, 28:5(2000), 1302-1338.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://projecteuclid.org/euclid.aos/1360332187#info&quot;&gt;[2] V. Spokoiny. Parametric estimation. Finite sample theory.&lt;/a&gt; 
+&lt;em&gt;Ann. Statist.&lt;/em&gt;, 40:6(2012), 2877-2909.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://epubs.siam.org/doi/book/10.1137/1.9781611970791?mobileUi=0&quot;&gt;[3] A. Nemirovski and Yu. Nesterov. Interior-point polynomial algorithms in convex programming.&lt;/a&gt; 
+&lt;em&gt;Society for Industrial and Applied Mathematics, Philadelphia, 1994.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://projecteuclid.org/euclid.ejs/1271941980&quot;&gt;[4] F. Bach. Self-concordant analysis for logistic regression.&lt;/a&gt; 
+&lt;em&gt;Electron. J. Stat., 4(2010), 384-414.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://arxiv.org/abs/1011.3027&quot;&gt;[5] R. Vershynin. Introduction to the non-asymptotic analysis of random matrices.&lt;/a&gt; 
+&lt;em&gt;Compressed Sensing: Theory and Applications, 210–268&lt;/em&gt;. Cambridge University Press, 2012.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://proceedings.mlr.press/v23/hsu12/hsu12.pdf&quot;&gt;[6] D. Hsu, S. Kakade, and T. Zhang. Random design analysis of ridge regression.&lt;/a&gt; &lt;em&gt;COLT, 2012.&lt;/em&gt;&lt;/p&gt;</content><author><name>Dmitrii M. Ostrovskii</name></author><summary type="html">In this series of posts, I will present our recent work with Francis Bach on the optimal rates for $M$-estimators with self-concordant-like losses. The term “$M$-estimator” is more commonly used in the statistical community; in the learning theory community one more often talks about empirical risk minimization. The two are the same; I will mostly use the statistical terminology to stress the connections to the classical asymptotic results.</summary></entry></feed>
