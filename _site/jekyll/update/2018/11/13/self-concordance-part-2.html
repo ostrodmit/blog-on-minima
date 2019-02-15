@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.5.0 -->
+<title>Finite-sample analysis of $M$-estimators using self-concordance, Part II | Personal blog of Dmitrii Ostrovskii</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="Finite-sample analysis of $M$-estimators using self-concordance, Part II" />
+<meta name="author" content="Dmitrii M. Ostrovskii" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This the second of two posts where I present our work with Francis Bach on the optimal rates for $M$-estimators. Recall that in the previous post, we have proved the Localization Lemma which states the following: stability of the empirical risk Hessian $\mathbf{H}_n(\theta)$ on the Dikin ellipsoid $\Theta_{r}(\theta_*)$ with radius $r$, \[ \mathbf{H}_n(\theta) \asymp \mathbf{H}_n(\theta_*), \, \forall \theta \in \Theta_{r}(\theta_*), \] guarantees that once the score $\Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2$ reaches \[ \Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2 \lesssim r^2, \] one has the desired excess risk bound: \[ L(\widehat \theta_n) - L(\theta_*) \lesssim \Vert\widehat \theta_n - \theta_*\Vert_{\mathbf{H}}^2 \lesssim \Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2 \] In this post, we will show how self-concordance can be used to prove stability guarantees for $\mathbf{H}_n(\theta)$." />
+<meta property="og:description" content="This the second of two posts where I present our work with Francis Bach on the optimal rates for $M$-estimators. Recall that in the previous post, we have proved the Localization Lemma which states the following: stability of the empirical risk Hessian $\mathbf{H}_n(\theta)$ on the Dikin ellipsoid $\Theta_{r}(\theta_*)$ with radius $r$, \[ \mathbf{H}_n(\theta) \asymp \mathbf{H}_n(\theta_*), \, \forall \theta \in \Theta_{r}(\theta_*), \] guarantees that once the score $\Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2$ reaches \[ \Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2 \lesssim r^2, \] one has the desired excess risk bound: \[ L(\widehat \theta_n) - L(\theta_*) \lesssim \Vert\widehat \theta_n - \theta_*\Vert_{\mathbf{H}}^2 \lesssim \Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2 \] In this post, we will show how self-concordance can be used to prove stability guarantees for $\mathbf{H}_n(\theta)$." />
+<link rel="canonical" href="http://localhost:4000/jekyll/update/2018/11/13/self-concordance-part-2.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/update/2018/11/13/self-concordance-part-2.html" />
+<meta property="og:site_name" content="Personal blog of Dmitrii Ostrovskii" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-11-13T00:00:00+01:00" />
+<script type="application/ld+json">
+{"description":"This the second of two posts where I present our work with Francis Bach on the optimal rates for $M$-estimators. Recall that in the previous post, we have proved the Localization Lemma which states the following: stability of the empirical risk Hessian $\\mathbf{H}_n(\\theta)$ on the Dikin ellipsoid $\\Theta_{r}(\\theta_*)$ with radius $r$, \\[ \\mathbf{H}_n(\\theta) \\asymp \\mathbf{H}_n(\\theta_*), \\, \\forall \\theta \\in \\Theta_{r}(\\theta_*), \\] guarantees that once the score $\\Vert\\nabla L_n(\\theta_*) \\Vert_{\\mathbf{H}^{-1}}^2$ reaches \\[ \\Vert\\nabla L_n(\\theta_*) \\Vert_{\\mathbf{H}^{-1}}^2 \\lesssim r^2, \\] one has the desired excess risk bound: \\[ L(\\widehat \\theta_n) - L(\\theta_*) \\lesssim \\Vert\\widehat \\theta_n - \\theta_*\\Vert_{\\mathbf{H}}^2 \\lesssim \\Vert\\nabla L_n(\\theta_*) \\Vert_{\\mathbf{H}^{-1}}^2 \\] In this post, we will show how self-concordance can be used to prove stability guarantees for $\\mathbf{H}_n(\\theta)$.","author":{"@type":"Person","name":"Dmitrii M. Ostrovskii"},"@type":"BlogPosting","url":"http://localhost:4000/jekyll/update/2018/11/13/self-concordance-part-2.html","headline":"Finite-sample analysis of $M$-estimators using self-concordance, Part II","dateModified":"2018-11-13T00:00:00+01:00","datePublished":"2018-11-13T00:00:00+01:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/update/2018/11/13/self-concordance-part-2.html"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Personal blog of Dmitrii Ostrovskii" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Personal blog of Dmitrii Ostrovskii</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Finite-sample analysis of $M$-estimators using self-concordance, Part II</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2018-11-13T00:00:00+01:00" itemprop="datePublished">Nov 13, 2018
+      </time>• <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span class="p-author h-card" itemprop="name">Dmitrii M. Ostrovskii</span></span></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>This the second of two posts where I present <a href="https://arxiv.org/abs/1810.06838"><strong>our work</strong></a> with Francis Bach on the optimal rates for $M$-estimators. 
+Recall that in the previous post, we have proved the Localization Lemma which states the following: stability of the empirical risk Hessian $\mathbf{H}_n(\theta)$ on the Dikin ellipsoid $\Theta_{r}(\theta_*)$ with radius $r$,
+\[
+\mathbf{H}_n(\theta) \asymp \mathbf{H}_n(\theta_*), \, \forall \theta \in \Theta_{r}(\theta_*),
+\] 
+guarantees that once the <em>score</em> $\Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2$ reaches 
+\[ 
+\Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2 \lesssim r^2,
+\]
+one has the desired excess risk bound:
+\[
+L(\widehat \theta_n) - L(\theta_*) \lesssim \Vert\widehat \theta_n - \theta_*\Vert_{\mathbf{H}}^2 \lesssim \Vert\nabla L_n(\theta_*) \Vert_{\mathbf{H}^{-1}}^2
+\]
+In this post, we will show how self-concordance can be used to prove stability guarantees for $\mathbf{H}_n(\theta)$.</p>
+
+<h1 id="self-concordance"><strong>Self-concordance</strong></h1>
+
+<p>Recall that $\ell(y,\eta)$ is the loss of predicting a label $y \in \mathcal{Y}$ with $\eta = X^\top \theta \in \mathbb{R}$. We assume that $\ell(y,\eta)$ is convex in its second argument, and introduce
+the following definition:</p>
+
+<blockquote>
+  <p><strong>Definition 1</strong>. The loss $\ell(y,\eta)$ is <strong>self-concordant (SC)</strong> if for any $(y,\eta) \in \mathcal{Y} \times \mathbb{R}$ it holds
+\[
+\boxed{
+|\ell'''_\eta(y,\eta)| \le [\ell''_\eta(y,\eta)]^{3/2}.
+}
+\]</p>
+</blockquote>
+
+<p>While the above definition is homogeneous in $\eta$, the next one is not, since the power $3/2$ is removed:</p>
+
+<blockquote>
+  <p><strong>Definition 2</strong>. The loss $\ell(y,\eta)$ is <strong>pseudo self-concordant (PSC)</strong> if instead it holds
+\[
+\boxed{
+|\ell'''_\eta(y,\eta)| \le \ell''_\eta(y,\eta).
+}
+\]</p>
+</blockquote>
+
+<p>The first definition is inspired by <a href="https://epubs.siam.org/doi/book/10.1137/1.9781611970791?mobileUi=0">[3]</a> where similar functions (in $\mathbb{R}^d$) were introduced in the context of interior-point algorithms. 
+As we are about to see, the homogeneity of this definition in $\eta$ allows to qualify the precision of local quadratic approximations of empirical risk in affine-invariant manner, which is a natural requirement if we recall that $M$-estimators are <em>themselves</em> affine-invariant.
+This is violated in the second definition; will see that this leads to the increased sample size to guarantee the optimal excess risk for PSC losses, under the extra assumption.
+On the other hand, PSC losses are somewhat more common.
+I will now give several examples of SC and PSC losses.</p>
+
+<ol>
+  <li>
+    <p>One family of examples arises in generalized linear models (GLMs). In particular, <strong><em>the logistic loss</em></strong>
+\[
+\ell(y,\eta) = \frac{\log(1 + e^{-y\eta})}{\log 2},
+\]
+is PSC (see <a href="https://projecteuclid.org/euclid.ejs/1271941980">[4]</a>).
+In fact, one can consider other GLM losses with canonical parameter, given by
+\[
+\ell(y,\eta) = - y\eta + a(\eta) - b(y),
+\]
+where the <em>cumulant</em> $a(\eta)$ can be written as 
+\[
+a(\eta) = \mathbb{E}_{p_\eta}[Y]
+\] 
+where 
+$
+p_\eta(y) \propto e^{y\eta + b(y)}
+$
+is the density that the model imposes on $Y$. Thus, for GLMs self-concordance can be interpreted in terms of this model distribution of $Y$: for $s \in \{2,3\}$ we have
+\[
+\ell_\eta^{(s)}(y,\eta) = a^{(s)}(\eta) = \mathbb{E}_{p_\eta} [(Y - \mathbb{E}_{p_\eta}Y)^s].
+\]
+Then, (pseudo) self-concordance specifies the relation between the central moments of $p_\eta(\cdot)$.
+In particular, we see that the logistic loss is PSC simply because $\mathcal{Y} = \{0,1\}$, and hence
+\[
+|a'''(\eta)| \le \mathbb{E}_{p_\eta} |(Y - \mathbb{E}_{p_\eta}[Y])^3| \le \mathbb{E}_{p_\eta} [(Y - \mathbb{E}_{p_\eta}[Y])^2] = a''(\eta).
+\]
+Another example of a PSC loss arises in <em>Poisson regression</em> where the model assumption is that $Y \sim \text{Poisson}(e^\eta)$ which corresponds to $a(\eta) = \exp(\eta)$. 
+Unfortunately, this implies heavy-tailed distribution of the calibrated design $\tilde X(\theta)$ under the model distribution which creates additional difficulties – see our paper for more details.</p>
+  </li>
+  <li>
+    <p>Another family of PSC losses arises in <strong><em>robust estimation</em></strong>. Here, $\ell(y,\eta) = \varphi(y-\eta)$ with $\varphi(\cdot)$ being convex,  even, 1-Lipschitz, and satisfying $\varphi''(0) = 1$. 
+The prototypic example of a robust loss is the <em>Huber loss</em> corresponding to
+\[
+\varphi(t) = 
+\left\{
+\begin{align}
+&amp;{t^2}/{2}, 
+&amp;\quad|t| &amp;\le 1, \\
+&amp;\tau t    - 1/2, 
+&amp;\quad |t| &amp;&gt; 1.
+\end{align}
+\right.
+\]
+However, $\varphi'''(t)$ doesn’t exist at $t = \pm 1$, so it is not SC nor PSC. 
+Fortunately, the Huber loss can be well-approximated by some <em>pseudo-Huber losses</em> that turn out to be PSC (see the figure below):
+\begin{align}
+\label{def:pseudo-huber}
+\varphi(t) &amp;= \log\left(\frac{\exp(t) + \exp(-t)}{2}\right), \\
+\varphi(t) &amp;= \sqrt{1 + {t^2}}-1.
+\end{align}</p>
+  </li>
+  <li>
+    <p>Finally, we can construct SC losses using the classical result from <a href="https://epubs.siam.org/doi/book/10.1137/1.9781611970791?mobileUi=0">[3]</a> that self-concordance is preserved under taking the Fenchel conjugate.</p>
+    <blockquote>
+      <p>The Fenchel conjugate of a self-concordant function $\varphi^*: D \to \mathbb{R}$, where $D \subseteq \mathbb{R}$, is also self-concordant.</p>
+    </blockquote>
+  </li>
+</ol>
+
+<p>This fact allows to construct SC losses with derivatives ranging over a given interval, by computing the convex conjugate of the logarithmic barrier of a given subset of $\mathbb{R}$. In particular, taking the log-barrier on $[-1,1]$, we obtain an analogue of Huber’s loss, and the log-barrier on $[-1,0]$ results in the analogue of the logistic loss (see the figure below). 
+Note that in the latter case, our loss does not upper bound for the 0-1 loss. However, its negative part grows as a logarithm, and using the calibration theory of <a href="https://people.eecs.berkeley.edu/~wainwrig/stat241b/bartlettetal.pdf">[7]</a>, one can show that the related expected risk still well-approximates the probability of misclassification.</p>
+
+<p><img src="/figs/robust-for-blog.png" alt="drawing" width="360" /> <img src="/figs/class-for-blog.png" alt="drawing" width="360" />
+<strong>Figure.</strong> Our self-concordant analogues of the Huber and logistic losses.</p>
+
+<h1 id="integration-argument-and-the-basic-result"><strong>Integration argument and the basic result</strong></h1>
+<p>By the Localization Lemma, our task reduces to proving that the empirical Hessian is stable, with high probability, in the Dikin ellipsoid $\Theta_r(\theta_*)$ with a <em>constant</em> radius $r$. 
+On the other hand, self-concordance easily allows to get 
+\[
+r = O\left(\frac{1}{\sqrt{d}}\right)
+\] 
+using a simple integration technique sketched below. This leads to the sample size bound
+\[
+n \gtrsim d \cdot d_{eff},
+\]
+up to the dependency on $\delta$ and subgaussian constants.</p>
+
+<p>1.
+Indeed, let the loss be SC, and recall that the Hessian of the empirical risk at point $\theta$ is
+\[
+\mathbf{H}_n(\theta) = \frac{1}{n} \sum_{i=1}^n  \ell''(Y_i,X_i^\top\theta) X_i X_i.
+\] 
+Hence, we can compare $\mathbf{H}_n(\theta)$ with $\mathbf{H}_n(\theta_*)$ by comparing $\ell''(Y_i,X_i^\top\theta)$ with $\ell''(Y_i,X_i^\top\theta_*)$.</p>
+
+<p>2.
+Integrating $|\ell'''(y,\eta)| \le [\ell''(y,\eta)]^{3/2}$ from $\eta_* = X^\top \theta_*$ to $\eta = X^\top \theta$, we arrive at
+\[
+\frac{1}{(1+[\ell''(y,\eta_*)]^{1/2}|\eta - \eta_*|)^2} \le \frac{\ell''(y,\eta)}{\ell''(y,\eta_*)} \le \frac{1}{(1-[\ell’‘(y, \eta_*)]^{1/2}|\eta - \eta_*|)^2},
+\]
+or equivalently,
+\[
+\frac{1}{(1+|\langle \tilde X(\theta_*), \theta - \theta_* \rangle|)^2} \le \frac{\ell''(Y,X^\top \theta)}{\ell''(Y,X^\top \theta_*)} \le \frac{1}{(1- |\langle \tilde X(\theta_*), \theta - \theta_* \rangle|)^2}.
+\]
+3.
+The ratio is bounded if $|\langle \tilde X(\theta_*), \theta-\theta_* \rangle| \le c &lt; 1$. By Cauchy-Schwarz, it suffices that
+\[
+\Vert\tilde X(\theta_*)\Vert_{\mathbf{H}(\theta_*)^{-1}} \Vert(\theta-\theta_*)\Vert_{\mathbf{H}(\theta_*)} \le c. 
+\]
+On the other hand, $\mathbf{H}(\theta_*)^{-1/2}\tilde X(\theta_*)$ is a $K_2$-subgaussian vector in $\mathbb{R}^d$, therefore, 
+\[
+\Vert\tilde X(\theta_*)\Vert_{\mathbf{H}(\theta_*)^{-1}} = \Vert\mathbf{H}(\theta_*)^{-1/2} \tilde X(\theta_*)\Vert_{2} = O(K_2\sqrt{d}).
+\]
+Thus, we can guarantee that  with high probability, $\mathbf{H}_n(\theta) \asymp \mathbf{H}_n(\theta_*)$ for any $\theta$ such that 
+\[
+\Vert(\theta-\theta_*)\Vert_{\mathbf{H}(\theta_*)}  \le \frac{c}{K_2 \sqrt{d}},
+\]
+i.e., in the Dikin ellipsoid $\Theta_r(\theta_*)$ with radius $r \lesssim \frac{K_2}{\sqrt{d}}$.
+Combining this with the Localization Lemma and some union bounds, we obtain the following result:</p>
+
+<blockquote>
+  <p><strong>Theorem 1.</strong> Assume that the loss is self-concordant, and $\mathbf{G}^{-1/2}\nabla \ell_\theta(Y,X^\top \theta_*),$ $\mathbf{H}^{1/2}\tilde X(\theta_*)$ are, correspondingly, $K_1$- and $K_2$-
+subgaussian. Then, with probability at least $1-\delta$ it holds
+\[
+\label{eq:main-ineq}
+\boxed{
+L(\widehat\theta_n) - L(\theta_*) \lesssim \Vert\widehat\theta_n - \theta_*\Vert_{\mathbf{H}}^2 \lesssim \frac{K_1^2 d_{eff} \log(1/\delta)}{n}
+}
+\]
+provided that
+\begin{equation}
+\label{eq:n-mine-complex}
+\boxed{
+n \gtrsim \max\left\{K_2^4 \left( {\color{blue}  d} + \log\left(1/\delta\right)\right), \; {\color{red} d} K_1^2 K_2^2 {\color{blue}{d_{eff}}}\log\left(d/{\delta}\right)\right\}.
+}
+\tag{SC}
+\end{equation}</p>
+</blockquote>
+
+<p>We see that the critical sample size grows as the <strong>product</strong> of $d_{eff}$ and $d$, since we can only guarantee that $\mathbf{H}_n(\theta)$ is stable in the small Dikin ellipsoid with $O(1/\sqrt{d})$ radius.
+In fact, this result can be improved. But before showing how this can be achieved, let me consider the case of PSC losses.</p>
+
+<h1 id="pseudo-self-concordant-losses"><strong>Pseudo self-concordant losses</strong></h1>
+
+<p>In the case of PSC losses, a  integration argument – but this time integrating $|\ell'''(y,\eta)| \le \ell''(y,\eta)$ – implies that in order to bound the ratio of the second derivatives, we must ensure that
+\[
+\Vert X\Vert_{\mathbf{H}^{-1}} \Vert(\theta-\theta_*)\Vert_{\mathbf{H}}\le c,
+\]
+that is, the calibrated design $\tilde X(\theta_*) = [\ell''_\eta(Y,X^\top \theta_*)]^{1/2}X$ gets replaced with $X$. 
+Intuitively, this is due to the lack of the extra square root of $\ell''_\eta(y,\eta)$ in <strong>Definition 2</strong>.
+To control $\Vert X\Vert_{\mathbf{H}(\theta_*)^{-1}}$, we can introduce the standard assumption from <a href="https://projecteuclid.org/euclid.ejs/1271941980">[4]</a>, relating $\mathbf{H}(\theta_*)$ and the second-moment matrix of the design, $\boldsymbol{\Sigma} := \mathbb{E}[X X^\top]$, as follows:
+\[
+\boldsymbol{\Sigma} \preccurlyeq \rho \mathbf{H}.
+\]
+By a similar argument, we show that under this additional assumption, and assuming that $\boldsymbol{\Sigma}^{-1/2}X$ is $K$-subgaussian, the critical sample size from <strong>Theorem 1</strong> gets replaced with
+\begin{equation}
+\label{eq:n-fake-complex}
+\boxed{
+n \gtrsim \max\left\{K_2^4 \left(\color{blue}{d} + \log\left({1}/{\delta}\right)\right), \; \color{red}{\rho d} K^2 K_1^2 \color{blue}{d_{eff}} \log\left(d/{\delta}\right)\right\};
+}
+\tag{PSC}
+\end{equation}
+essentially, it becomes $\rho$ times larger.
+Note that the only <em>generic</em> upper bound available for $\rho$ is
+\[
+\rho \le \frac{1}{\inf_{\eta} \ell''_{\eta}(y,\eta)},
+\]
+where $\eta$ ranges over the set $\left\{\eta(\theta) = X^{\top} \theta, \;\theta \in \Theta \right\},$ and $\Theta$ is the set of possible predictors. In particular, in logistic regression with $\Vert X \Vert_2 \le D$ and $\Theta = {\theta \in \mathbb{R}^d: \Vert\theta\Vert_2 \le R}$, this gives 
+\[
+\rho \lesssim \exp({RD}).
+\]
+Moreover, this bound is achievable on a certain (quite artificial) distribution of $X$ as shown in <a href="http://proceedings.mlr.press/v35/hazan14a.html">[8]</a>.
+However, the <em>actual</em> value of $\rho$ depends on the data distribution, and is moderate when this distribution is not chosen adversarially as discussed in <a href="https://arxiv.org/abs/1306.2119">[9]</a>.
+In fact, in the paper we show that in logistic regression with Gaussian design $X \sim \mathcal{N}(0, \boldsymbol{\Sigma})$ one has
+\[
+\rho \lesssim 1+\Vert\theta_*\Vert_{\boldsymbol{\Sigma}}^3.
+\]
+Still, $\rho \gg 1$ when $\Vert\theta_*\Vert_{\boldsymbol{\Sigma}} \gg 1$, and our construction of self-concordant analogues of the Huber and logistic losses remains useful.</p>
+
+<h1 id="near-linear-bounds-by-a-covering-argument"><strong>Near-linear bounds by a covering argument</strong></h1>
+
+<p>In fact, we can get rid of the extra $O(d)$ factor in the previous bounds for the critical sample size, and obtain the bounds that scale near-linearly in $\max(d, d_{eff})$. 
+In particular, in the case of self-concordant losses the critical sample size in the case of SC losses can be reduced to
+\begin{equation}
+\label{eq:n-mine-improved}
+\boxed{
+n \gtrsim \max\left\{\bar K_2^4 d\log\left({d}/\delta\right), \; K_1^2 \bar K_2^6 d_{eff}  \log\left(1/\delta\right)\right\}.
+}
+\tag{SC$^*$}
+\end{equation}
+This is done via a more delicate argument, as explained below, and under the mild extra assumption that the calibrated design
+$
+\tilde X(\theta)
+$
+is $\bar K_2$-subgaussian, when multiplied by $\mathbf{H}(\theta)$, at every point $\theta$ of the unit Dikin ellipsoid $\Theta_1(\theta_*)$, with $\bar K_2$ independent of $\theta$.
+For pseudo self-concordant losses, the second bound gets inflated by $\rho$; on the other hand, the radius of the Dikin ellipsoid in which $\tilde X(\theta)$ is required to be uniformly subgaussian decreases by the factor of $1/\sqrt{\rho}$. In fact, the extra assumption appears to be essetial. 
+For example, in the paper we show that in logistic regression with $X \sim \mathcal{N}(0,\boldsymbol{\Sigma})$, one has
+\[
+\bar K_2 \lesssim K_2 + 1,
+\]
+where $K_2$ is the subgaussian constant of $\mathbf{H}(\theta_*)^{-1/2}\tilde X(\theta_*)$, and the two assumptions are equivalent.</p>
+
+<p><img src="/figs/covering-cropped.png" alt="drawing" width="600" /></p>
+
+<p>Let us briefly explain the main ideas behind the proof of the improved bounds (see the figure above).
+First of all, recall that the extra $d$ factor in the previous bounds appeared because we used self-concordance of the <em>individual losses</em>, which only allowed to prove stability of the empirical Hessian in a small Dikin ellipsoid with radius $O(1/\sqrt{d})$.
+This factor would be eliminated if we managed to show a probabilistic bound
+\[
+\mathbf{H}_n(\theta) \asymp \mathbf{H}_n(\theta_*), 
+\]
+uniformly over the Dikin ellipsoid $\Theta_{c}(\theta_*)$ with a constant radius.
+Such bound could have been obtained via an integration argument, should we have self-concordance of $L_n(\theta)$.
+However, unlike the individual losses, <em>the empirical risk is not self-concordant</em>,  we have to come up with a more subtle argument. 
+In a nutshell, this argument combines the following ingredients:</p>
+
+<ol>
+  <li>
+    <p><em>Self-concordance of expected risk</em> $L(\theta)$ on $\Theta_c(\theta_*)$, with $c = 1/\bar K_2^{3/2}$, which follows from the subgaussian assumption about $\tilde X(\theta)$ and the relation between the moments of a subgaussian vector. This guarantees that for any $\theta \in \Theta_c(\theta_*)$ it holds
+\[
+\mathbf{H}(\theta) \asymp \mathbf{H}(\theta_*).
+\]</p>
+  </li>
+  <li>
+    <p><em>Self-concordance of the individual losses</em> which guarantees, for any $\theta_0 \in \mathbb{R}^d$ and $\theta \in \Theta_{1/\sqrt{d}}(\theta_0)$, that
+\[
+\mathbf{H}_n(\theta) \asymp \mathbf{H}_n(\theta_0).
+\]</p>
+  </li>
+  <li>
+    <p>Finally, a <em>covering argument</em>, in which $\Theta_c(\theta_*)$  is covered with smaller $O(1/\sqrt{d})$-ellipsoids. The problem then reduces to the control of the supremum
+\[
+\sup_{\theta_0 \in \mathcal{N}} \Vert \mathbf{H}(\theta_0)^{-1/2} \mathbf{H}_n(\theta_0) \mathbf{H}(\theta_0)^{-1/2}\Vert,
+\]
+where $\Vert\cdot\Vert$ is the operator norm, and $\mathcal{N}$ is the epsilon-net corresponding to the covering of $\Theta_c(\theta_*)$.
+This gives the extra $O(\log d)$ factor in \eqref{eq:n-mine-improved} since $\log(|\mathcal{N}|) = O(d \log d)$.</p>
+  </li>
+</ol>
+
+<h1 id="conclusion"><strong>Conclusion</strong></h1>
+<p>We have demonstrated how to obtain fast rates for the excess risk of $M$-estimators in finite-sample regimes. 
+Our analysis can handle $M$-estimators with losses satisfying certain self-concordance-type assumptions that hold in some generalized linear models, notably logistic regression, and in robust estimation.
+These assumptions allow to control the precision of the local quadratic approximations of the empirical risk.</p>
+
+<p>One topic that remained beyond the scope of this post is the $\ell_1$-regularized estimators in sparse high-dimensional regimes. There, we have not yet established the improved rates that should scale near-linearly with the sparsity of $\theta_*$. Another possible extension are matrix-parametrized models that arise in covariance matrix estimation and independent component analysis, and application of our techniques to algorithmically efficient procedures such as stochastic approximation.</p>
+
+<h1 id="references"><strong>References</strong></h1>
+
+<p><a href="https://projecteuclid.org/euclid.aos/1015957395#info">[1] B. Laurent and P. Massart. Adaptive estimation of a quadratic functional by model selection.</a> 
+<em>Ann. Statist.</em>, 28:5(2000), 1302-1338.</p>
+
+<p><a href="https://projecteuclid.org/euclid.aos/1360332187#info">[2] V. Spokoiny. Parametric estimation. Finite sample theory.</a> 
+<em>Ann. Statist.</em>, 40:6(2012), 2877-2909.</p>
+
+<p><a href="https://epubs.siam.org/doi/book/10.1137/1.9781611970791?mobileUi=0">[3] A. Nemirovski and Yu. Nesterov. Interior-point polynomial algorithms in convex programming.</a> 
+<em>Society for Industrial and Applied Mathematics, Philadelphia, 1994.</em></p>
+
+<p><a href="https://projecteuclid.org/euclid.ejs/1271941980">[4] F. Bach. Self-concordant analysis for logistic regression.</a> 
+<em>Electron. J. Stat., 4(2010), 384-414.</em></p>
+
+<p><a href="https://arxiv.org/abs/1011.3027">[5] R. Vershynin. Introduction to the non-asymptotic analysis of random matrices.</a> 
+<em>Compressed Sensing: Theory and Applications, 210–268</em>. Cambridge University Press, 2012.</p>
+
+<p><a href="http://proceedings.mlr.press/v23/hsu12/hsu12.pdf">[6] D. Hsu, S. Kakade, and T. Zhang. Random design analysis of ridge regression.</a> <em>COLT, 2012.</em></p>
+
+<p><a href="https://people.eecs.berkeley.edu/~wainwrig/stat241b/bartlettetal.pdf">[7] P. Bartlett, M. Jordan, and J. McAuliffe. Convexity, classification, and risk bounds.</a>
+<em>J. Am. Stat. Assoc.</em>, 101:473(2006), 138–156.</p>
+
+<p><a href="http://proceedings.mlr.press/v35/hazan14a.html">[8] E. Hazan, T. Koren, and K. Levy. Logistic regression: tight bounds for stochastic and online optimization.</a>
+<em>COLT, 2014.</em></p>
+
+<p><a href="https://arxiv.org/abs/1306.2119">[9] F. Bach and E. Moulines. Non-strongly-convex smooth stochastic approximation with convergence rate $O(1/n)$.</a>
+<em>NIPS, 2013.</em></p>
+
+  </div><a class="u-url" href="/jekyll/update/2018/11/13/self-concordance-part-2.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Personal blog of Dmitrii Ostrovskii</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Personal blog of Dmitrii Ostrovskii</li><li><a class="u-email" href="mailto:dmitrii.ostrovskii@inria.fr">dmitrii.ostrovskii@inria.fr</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/ostrodmit"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">ostrodmit</span></a></li><li><a href="https://www.twitter.com/"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username"></span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
